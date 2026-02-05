@@ -1,0 +1,32 @@
+Road Guardian - How to Operate the App
+=====================================
+
+1) Install Dependencies
+-----------------------
+pip install -r requirements.txt
+
+2) Download the Dlib 68-Point Model
+-----------------------------------
+Download:
+http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
+
+Extract the archive to obtain:
+shape_predictor_68_face_landmarks.dat
+
+3) Run the Application
+----------------------
+python app.py --shape-predictor /path/to/shape_predictor_68_face_landmarks.dat
+
+4) Optional Parameters
+----------------------
+--source 0          Camera index (default: 0)
+--ear 0.23          EAR threshold
+--mar 0.7           MAR threshold
+--no-clahe          Disable low-light enhancement
+--gps-endpoint URL  Override GPS/IP lookup endpoint
+
+5) What to Expect
+-----------------
+- "DROWSINESS ALERT!" appears when eyes are closed beyond the configured threshold.
+- "YAWNING DETECTED" appears when MAR exceeds its threshold.
+- After 3 drowsiness events in 10 minutes, a GPS-based alert is printed.
