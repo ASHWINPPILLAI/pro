@@ -1,72 +1,73 @@
-# Road Guardian: Driver Drowsiness and Distraction Detection (Safety)
+# Road Guardian: Driver Drowsiness & Distraction Detection (Safety)
 
-## Topic
-Driver drowsiness and distraction detection using facial landmarks and blink frequency analysis.
+## Project Overview
+Road Guardian is a driver-monitoring safety system that detects drowsiness and distraction using facial landmarks. The system tracks blink frequency (Eye Aspect Ratio / EAR) and mouth dynamics (Mouth Aspect Ratio / MAR) to detect prolonged eye closure and yawning while reducing false alarms from speech. It is designed to remain robust in low-light conditions and when drivers wear glasses.
 
 ## Problem Statement
-Road accidents are frequently caused by drivers falling asleep or looking at their phones, leading to delayed reaction times and loss of vehicle control.
+Many road accidents occur when drivers fall asleep or look at their phones. Early detection of eye closure and yawning can trigger timely alerts and reduce crash risk.
 
 ## Research Gap
-Many existing systems fail when drivers wear glasses or when detection occurs at night. This project emphasizes **robustness in low-light conditions** and explores **distinguishing yawning vs. talking** to reduce false alarms.
+Most off-the-shelf approaches degrade in:
+- **Low-light conditions** (night driving).
+- **Glasses / reflective lenses** that hide eye contours.
+- **Speech vs. yawning** confusion that produces false positives.
 
-## Proposed Methodology
+This project focuses on **robustness in low light** and **yawning vs. talking distinction**.
+
+## Methodology
 ### Input
-* Live video stream of the driver’s face.
+- Live video stream of the driver’s face.
 
 ### Technique
-* Use **Dlib** with 68 facial landmarks to track:
-  * **Eye Aspect Ratio (EAR)** for blink and eye-closure detection.
-  * **Mouth Aspect Ratio (MAR)** to detect yawning and reduce confusion with speech.
+- **Dlib 68-point facial landmarks** for tracking facial geometry.
+- **EAR (Eye Aspect Ratio)** to measure eye closure duration.
+- **MAR (Mouth Aspect Ratio)** to detect yawning and differentiate from speech.
+- **CLAHE preprocessing** to enhance contrast in low-light frames.
 
-### Logic
-* If **EAR < threshold** for **x seconds** → trigger an alarm.
-* If **drowsiness is detected 3 times within 10 minutes**, escalate by sending a GPS location alert to a family member.
+### Detection Logic
+- **If EAR < threshold for X seconds → trigger alarm.**
+- **If drowsiness is detected 3 times in 10 minutes → escalate** by sending a GPS-based alert to a family contact.
 
-## Novelty
-* Focus on low-light robustness and glasses-friendly detection.
-* Incorporate a **yawning vs. talking** classifier to reduce false positives.
-* Add a **GPS-based alert escalation** after repeated drowsiness events.
+## Novelty Highlights
+- Low-light robustness via CLAHE.
+- Glasses-friendly detection by focusing on landmark ratios rather than raw pixel intensity.
+- MAR-based yawning check to reduce false alerts while talking.
+- GPS escalation on repeated drowsiness events.
 
 ## Dataset
-* **YawDD** (Yawn Detection Dataset).
-
-## Expected Outcomes
-* Reduced false positives for drivers wearing glasses or speaking.
-* Reliable detection under low-light conditions.
-* Timely alerts and escalation for improved safety response.
+- **YawDD** (Yawn Detection Dataset).
 
 ---
 
-# Running the Demo App
+# Quick Start (Full App)
 
-## Prerequisites
-1. Python 3.10+ recommended.
-2. Dlib 68-point facial landmark model: `shape_predictor_68_face_landmarks.dat`.
-   * Download from: http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
-   * Unzip the file so you have `shape_predictor_68_face_landmarks.dat`.
+## 1) Requirements
+- Python **3.10+**
+- A webcam
+- Dlib 68-point model:  
+  `shape_predictor_68_face_landmarks.dat`  
+  Download from: http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
 
-## Install Dependencies
+## 2) Install
 ```bash
 pip install -r requirements.txt
 ```
 
-## Run
+## 3) Run
 ```bash
 python app.py --shape-predictor /path/to/shape_predictor_68_face_landmarks.dat
 ```
 
-Optional flags:
-* `--source 0` to change the camera index.
-* `--ear 0.23` and `--mar 0.7` to tune thresholds.
-* `--no-clahe` to disable low-light contrast enhancement.
+### Optional Flags
+- `--source 0` (camera index)
+- `--ear 0.23` (EAR threshold)
+- `--mar 0.7` (MAR threshold)
+- `--no-clahe` (disable low-light enhancement)
+- `--gps-endpoint <url>` (override GPS lookup endpoint)
 
-## Notes
-* The demo uses **CLAHE** to boost low-light robustness before face detection.
-* If the system detects 3 drowsiness events within 10 minutes, it prints a GPS-based alert (via IP lookup).
+---
 
-## Keeping It Updated on GitHub
-Use the following workflow to save changes and keep the repository updated:
-
+## Repository Maintenance (GitHub Sync)
 ```bash
 git status -sb
 git add .

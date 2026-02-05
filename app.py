@@ -27,6 +27,7 @@ class DetectionConfig:
     alert_window_seconds: int = 600
     alert_repeat_count: int = 3
     low_light_clahe: bool = True
+    gps_endpoint: str = "https://ipinfo.io/json"
 
 
 def eye_aspect_ratio(eye: np.ndarray) -> float:
@@ -43,9 +44,9 @@ def mouth_aspect_ratio(mouth: np.ndarray) -> float:
     return (vertical_1 + vertical_2) / (2.0 * horizontal)
 
 
-def get_gps_location() -> str:
+def get_gps_location(endpoint: str) -> str:
     try:
-        response = requests.get("https://ipinfo.io/json", timeout=5)
+        response = requests.get(endpoint, timeout=5)
         response.raise_for_status()
         data = response.json()
         location = data.get("loc", "unknown")
@@ -54,8 +55,8 @@ def get_gps_location() -> str:
         return "Location unavailable"
 
 
-def send_gps_alert(event_count: int) -> None:
-    location = get_gps_location()
+def send_gps_alert(event_count: int, endpoint: str) -> None:
+    location = get_gps_location(endpoint)
     message = (
         "[ALERT] Drowsiness detected multiple times. "
         f"Count: {event_count}. GPS: {location}"
@@ -80,7 +81,7 @@ class DrowsinessDetector:
         self.drowsy_events.append(current_time)
         self._prune_events(current_time)
         if len(self.drowsy_events) >= self.config.alert_repeat_count:
-            send_gps_alert(len(self.drowsy_events))
+            send_gps_alert(len(self.drowsy_events), self.config.gps_endpoint)
 
     def update_alarm(self, ear: float, mar: float, current_time: float) -> Tuple[bool, bool]:
         yawning = False
@@ -126,6 +127,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-clahe", action="store_true", help="Disable low-light CLAHE")
     parser.add_argument("--ear", type=float, default=0.23, help="EAR threshold")
     parser.add_argument("--mar", type=float, default=0.7, help="MAR threshold")
+    parser.add_argument(
+        "--gps-endpoint",
+        default="https://ipinfo.io/json",
+        help="Endpoint for GPS/IP lookup",
+    )
     return parser.parse_args()
 
 
@@ -135,6 +141,7 @@ def main() -> int:
         ear_threshold=args.ear,
         mar_threshold=args.mar,
         low_light_clahe=not args.no_clahe,
+        gps_endpoint=args.gps_endpoint,
     )
 
     detector = DrowsinessDetector(config)
